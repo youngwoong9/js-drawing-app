@@ -1,11 +1,16 @@
+// HTML에서 캔버스 가져오기
 const canvas = document.querySelector("canvas");
+// 2d 붓 생성.
 const ctx = canvas.getContext("2d");
-canvas.width = 800;
-canvas.height = 800;
 
-const brushWidth = document.querySelector("#line-width");
-ctx.lineWidth = brushWidth.value;
+// 캔버스 크기 정하기
+const CANVAS_WIDTH = 800;
+const CANVAS_HEIGHT = 800;
 
+canvas.width = CANVAS_WIDTH;
+canvas.height = CANVAS_HEIGHT;
+
+// 마우스 움직임으로 선 긋기
 let isPainting = false;
 
 function drawPainting(moveEvent) {
@@ -32,8 +37,79 @@ canvas.addEventListener("mousedown", startPainting);
 canvas.addEventListener("mouseup", cancelPainting);
 canvas.addEventListener("mouseleave", cancelPainting);
 
-function onLineWidth(changeEvent) {
+// 범위에 따라 선 굵기 정하기
+const brushWidth = document.querySelector("#line-width");
+ctx.lineWidth = brushWidth.value;
+
+function onLineWidthChange(changeEvent) {
   ctx.lineWidth = changeEvent.target.value;
 }
 
-brushWidth.addEventListener("change", onLineWidth);
+brushWidth.addEventListener("change", onLineWidthChange);
+
+// 범위에 따라 색 고르기.
+const colorRange = document.querySelector("#color");
+
+function onColorChange(changeEvent) {
+  ctx.strokeStyle = changeEvent.target.value;
+  ctx.fillStyle = changeEvent.target.value;
+}
+
+colorRange.addEventListener("change", onColorChange);
+
+// 옵션에 따라 색 고르기.
+const colorOptions = document.querySelectorAll(".color-option");
+
+function onColorClick(clickEvent) {
+  const colorValue = clickEvent.target.dataset.color;
+
+  ctx.strokeStyle = colorValue;
+  ctx.fillStyle = colorValue;
+  colorRange.value = colorValue;
+}
+
+colorOptions.forEach((colorBox) =>
+  colorBox.addEventListener("click", onColorClick)
+);
+
+// 선분 버튼 or 채우기 버튼 고르기
+const modeBtn = document.querySelector("#mode-btn");
+let isFilling = false;
+
+function onModeClick() {
+  if (isFilling === true) {
+    isFilling = false;
+    modeBtn.innerText = "draw-mode";
+  } else {
+    isFilling = true;
+    modeBtn.innerText = "fill-mode";
+  }
+}
+
+modeBtn.addEventListener("click", onModeClick);
+
+// 채우기 모드 구현.
+function onCanvasClick() {
+  if (isFilling === true) {
+    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT); //옵션 버튼 누름(ctx.fillStyle(색상) 바뀜) -> canvas 마우스 누름(채운 사각형 구현)
+  }
+}
+canvas.addEventListener("mousedown", onCanvasClick);
+
+//초기화 버튼 구현.
+const destroyBtn = document.querySelector("#destroy-btn");
+
+function onDestroyClick() {
+  ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+}
+destroyBtn.addEventListener("click", onDestroyClick);
+
+//지우개 버튼 구현.
+const eraserBtn = document.querySelector("#eraser-btn");
+
+function onEraserClick() {
+  ctx.strokeStyle = "white"; // 지우개 모드 상태에서는 선분 상태이므로 isFilling 값을 false로 해야 정상 작동.
+  isFilling = false;
+  modeBtn.innerText = "draw-mode";
+}
+eraserBtn.addEventListener("click", onEraserClick); //지우개 버튼 클릭 시 자동으로 선분 상태로 돌아가는 bug 있음.
