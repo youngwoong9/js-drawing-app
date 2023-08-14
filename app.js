@@ -3,34 +3,37 @@ const ctx = canvas.getContext("2d");
 canvas.width = 800;
 canvas.height = 800;
 
-const colors = [
-  "#e74c3c",
-  "#e67e22",
-  "#f1c40f",
-  "#2ecc71",
-  "#1abc9c",
-  "#3498db",
-  "#9b59b6",
-];
+const brushWidth = document.querySelector("#line-width");
+ctx.lineWidth = brushWidth.value;
 
-let pointX;
-let pointY;
+let isPainting = false;
 
-function onMove(moveEvent) {
-  const color = colors[Math.floor(Math.random() * colors.length)];
+function drawPainting(moveEvent) {
+  if (isPainting === true) {
+    ctx.lineTo(moveEvent.offsetX, moveEvent.offsetY);
+    ctx.stroke();
+    return; // 선을 그리는 동안 moveTo 메소드 작동 금지.
+  }
 
-  ctx.beginPath();
-  ctx.moveTo(pointX, pointY);
-  ctx.strokeStyle = color;
-  ctx.lineTo(moveEvent.offsetX, moveEvent.offsetY);
-  ctx.stroke();
-
-  canvas.addEventListener("click", onClick);
+  ctx.moveTo(moveEvent.offsetX, moveEvent.offsetY);
 }
 
-canvas.addEventListener("mousemove", onMove);
-
-function onClick(clickEvent) {
-  pointX = clickEvent.offsetX;
-  pointY = clickEvent.offsetY;
+function startPainting() {
+  isPainting = true;
 }
+
+function cancelPainting() {
+  isPainting = false;
+  ctx.beginPath(); // 마우스를 떼면 기존 경로 차단.
+}
+
+canvas.addEventListener("mousemove", drawPainting);
+canvas.addEventListener("mousedown", startPainting);
+canvas.addEventListener("mouseup", cancelPainting);
+canvas.addEventListener("mouseleave", cancelPainting);
+
+function onLineWidth(changeEvent) {
+  ctx.lineWidth = changeEvent.target.value;
+}
+
+brushWidth.addEventListener("change", onLineWidth);
