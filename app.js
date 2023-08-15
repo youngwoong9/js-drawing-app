@@ -7,9 +7,9 @@ const ctx = canvas.getContext("2d");
 const CANVAS_WIDTH = 800;
 const CANVAS_HEIGHT = 800;
 
-canvas.width = CANVAS_WIDTH;
-canvas.height = CANVAS_HEIGHT;
-
+canvas.width = CANVAS_WIDTH; //캔버스 너비
+canvas.height = CANVAS_HEIGHT; //캔버스 높이
+ctx.lineCap = "round";
 // 마우스 움직임으로 선 긋기
 let isPainting = false;
 
@@ -79,10 +79,10 @@ let isFilling = false;
 function onModeClick() {
   if (isFilling === true) {
     isFilling = false;
-    modeBtn.innerText = "draw-mode";
+    modeBtn.innerText = "🖌️Draw";
   } else {
     isFilling = true;
-    modeBtn.innerText = "fill-mode";
+    modeBtn.innerText = "🧪Fill";
   }
 }
 
@@ -128,9 +128,40 @@ function onFileChange(changeEvent) {
 
   function onInputCanvas() {
     ctx.drawImage(image, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    fileInput.value = null;
   }
 
   image.addEventListener("load", onInputCanvas);
 }
 
 fileInput.addEventListener("change", onFileChange);
+
+// 더블 클릭 시 text를 canvas에 붙이기.
+const textInput = document.querySelector("#text");
+
+function onDoubleClick(dblclickEvent) {
+  const text = textInput.value;
+
+  if (text !== "") {
+    ctx.save();
+    ctx.lineWidth = 1;
+    ctx.font = "bold 60px sans-serif";
+    ctx.fillText(text, dblclickEvent.offsetX, dblclickEvent.offsetY);
+    ctx.restore();
+  }
+}
+
+canvas.addEventListener("dblclick", onDoubleClick);
+
+//image 저장 구현.
+const saveBtn = document.querySelector("#save");
+
+function onSaveClick() {
+  const url = canvas.toDataURL();
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "myDrawing";
+  a.click();
+}
+
+saveBtn.addEventListener("click", onSaveClick);
