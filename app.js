@@ -94,6 +94,7 @@ function onCanvasClick() {
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT); //옵션 버튼 누름(ctx.fillStyle(색상) 바뀜) -> canvas 마우스 누름(채운 사각형 구현)
   }
 }
+
 canvas.addEventListener("mousedown", onCanvasClick);
 
 //초기화 버튼 구현.
@@ -102,6 +103,7 @@ const destroyBtn = document.querySelector("#destroy-btn");
 function onDestroyClick() {
   ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 }
+
 destroyBtn.addEventListener("click", onDestroyClick);
 
 //지우개 버튼 구현.
@@ -112,4 +114,23 @@ function onEraserClick() {
   isFilling = false;
   modeBtn.innerText = "draw-mode";
 }
+
 eraserBtn.addEventListener("click", onEraserClick); //지우개 버튼 클릭 시 자동으로 선분 상태로 돌아가는 bug 있음.
+
+//canvas에 image 구현
+const fileInput = document.querySelector("#file");
+
+function onFileChange(changeEvent) {
+  const file = changeEvent.target.files[0];
+  const url = URL.createObjectURL(file);
+  const image = new Image();
+  image.src = url;
+
+  function onInputCanvas() {
+    ctx.drawImage(image, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  }
+
+  image.addEventListener("load", onInputCanvas);
+}
+
+fileInput.addEventListener("change", onFileChange);
